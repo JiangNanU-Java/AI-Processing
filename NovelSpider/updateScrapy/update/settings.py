@@ -9,10 +9,10 @@
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'updateScrapy'
+BOT_NAME = 'update'
 
-SPIDER_MODULES = ['updateScrapy.spiders']
-NEWSPIDER_MODULE = 'updateScrapy.spiders'
+SPIDER_MODULES = ['update.spiders']
+NEWSPIDER_MODULE = 'update.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'updateScrapy (+http://www.yourdomain.com)'
@@ -87,4 +87,4 @@ ROBOTSTXT_OBEY = True
 # HTTPCACHE_DIR = 'httpcache'
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
-ITEM_PIPELINES = {'updateScrapy.pipelines.XiaoshuoPipeline': 2}
+ITEM_PIPELINES = {'update.pipelines.NovelPipeline': 2}
