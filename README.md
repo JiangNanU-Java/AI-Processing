@@ -4,6 +4,10 @@
 
 基于α-β剪枝博弈树的五子棋AI
 
+## NovelSpider
+
+小说更新追踪
+
 ## TensorFlow
 
 TensorFlow库相关程序
