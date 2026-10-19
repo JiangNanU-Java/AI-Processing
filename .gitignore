@@ -1,2 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc

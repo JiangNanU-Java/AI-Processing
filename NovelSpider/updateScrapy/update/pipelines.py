@@ -5,7 +5,7 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from scrapy.mail import MailSender
-import scrapy
+import os
 
 
 class NovelPipeline(object):
@@ -33,14 +33,21 @@ class NovelPipeline(object):
                 ''' % item['chapter']
 
                 # 通过SMTP发送邮件
-                mailer = MailSender(smtphost="smtp.163.com",
-                                    mailfrom="18861857305@163.com",
-                                    smtpuser="18861857305@163.com",
-                                    # 授权码
-                                    smtppass="WUDIwsh123",
-                                    smtpport=25)
-                # 目标邮箱
-                mailer.send(to=['18861857305@163.com'],
+                required = ('SMTP_USERNAME', 'SMTP_PASSWORD', 'SMTP_RECIPIENT')
+                missing = [name for name in required if not os.environ.get(name, '').strip()]
+                if missing:
+                    raise ValueError('Missing SMTP configuration: ' + ', '.join(missing))
+                username = os.environ['SMTP_USERNAME'].strip()
+                mailer = MailSender(
+                    smtphost=os.environ.get('SMTP_HOST', 'smtp.163.com'),
+                    mailfrom=os.environ.get('SMTP_FROM', username).strip(),
+                    smtpuser=username,
+                    smtppass=os.environ['SMTP_PASSWORD'],
+                    smtpport=int(os.environ.get('SMTP_PORT', '465')),
+                    smtpssl=True,
+                    debug=False,
+                )
+                mailer.send(to=[os.environ['SMTP_RECIPIENT'].strip()],
                             subject=email_subject,
                             body=email_body)
 

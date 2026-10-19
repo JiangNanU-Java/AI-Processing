@@ -11,6 +11,7 @@ from email.mime.text import MIMEText
 from email.utils import parseaddr, formataddr
 from email.mime.multipart import MIMEMultipart
 import smtplib
+import ssl
 from lxml import etree
 
 
@@ -125,12 +126,16 @@ class SendEmail:
         self.title = title
 
     def send(self, link):
-        # xxxxxxxxx表示邮箱服务授权码
-        data_1 = ['18861857305@163.com', 'WUDIwsh123', '18861857305@163.com', 'smtp.163.com']
-        from_addr = data_1[0]
-        password = data_1[1]
-        to_addr = data_1[2]
-        smtp_server = data_1[3]
+        required = ('SMTP_USERNAME', 'SMTP_PASSWORD', 'SMTP_RECIPIENT')
+        missing = [name for name in required if not os.environ.get(name, '').strip()]
+        if missing:
+            raise ValueError('Missing SMTP configuration: ' + ', '.join(missing))
+        username = os.environ['SMTP_USERNAME'].strip()
+        from_addr = os.environ.get('SMTP_FROM', username).strip()
+        password = os.environ['SMTP_PASSWORD']
+        to_addr = os.environ['SMTP_RECIPIENT'].strip()
+        smtp_server = os.environ.get('SMTP_HOST', 'smtp.163.com')
+        smtp_port = int(os.environ.get('SMTP_PORT', '465'))
 
         msg = MIMEMultipart('alternative')
         msg['From'] = from_addr
@@ -152,15 +157,14 @@ class SendEmail:
         part1 = MIMEText(html, 'html')
         msg.attach(part1)
         try:
-            server = smtplib.SMTP_SSL(smtp_server, 465)
-            server.set_debuglevel(1)
-            server.login(from_addr, password)
-            server.sendmail(from_addr, to_addr, msg.as_string())
+            with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=30,
+                                  context=ssl.create_default_context()) as server:
+                server.login(username, password)
+                server.sendmail(from_addr, to_addr, msg.as_string())
             print('success')
-        except server.SMTPException as e:
-            print("failed")
-        finally:
-            server.quit()
+        except (smtplib.SMTPException, OSError):
+            # Do not log exception details, credentials, or message bodies.
+            print('SMTP delivery failed; details withheld')
 
 
 if __name__ == '__main__':
